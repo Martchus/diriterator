@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
+shopt -s nullglob # from doc: If set, Bash allows filename patterns which match no files to expand to a null string, rather than themselves. 
+shopt -s dotglob
 # define queue
 queue=()
 function queueecho {
-    for item in "${queue[@]}"
-    do
+    for item in "${queue[@]}"; do
         echo $item
     done
 }
@@ -11,14 +12,12 @@ function queueexec {
     queueecho | parallel "-j$parallelcount" --eta "eval {}"
 }
 function iteratedirs {
-    shopt -s nullglob # from doc: If set, Bash allows filename patterns which match no files to expand to a null string, rather than themselves. 
-    for item in "$1/"*
-    do
-        if [ -d "$item" ]; then
-            if [[ $dept == none ]] || [ $currentlevel -lt $dept ]; then
+    for item in "$1"/*; do
+        if [[ -d $item ]]; then
+            if [[ $dept == none ]] || [[ $currentlevel -lt $dept ]]; then
                 iteratedirs "${item}" $(($2 + 1)) "${3}${item##*/}/"
             fi
-        elif [ -f "$item" ]; then
+        elif [[ -f $item ]]; then
             if [[ $filter == "" ]] || [[ "$item" =~ $filter ]]; then
                 name=${item##*/}
                 namewithoutextension=${name%.*}
@@ -68,13 +67,13 @@ do
         read=target
     elif [[ "--no-confirm" == $arg ]]; then
         noconfirm=true
-    elif [[ "--help" == $arg ]]; then
+    elif [[ "--help" == $arg ]] || [[ "-h" == $arg ]]; then
         echo "${bold}Runs a script for each file in a directory hierarchy using GNU parallel.${normal}
 --base-dir       the base directory (./ by default)
 --target-dir     the target directory (base directory by default)
 --dept           the maximal recursion dept (unlimited by default)
 --cmd            the command to be executed
---filter         a regular expression to filter files, eg. ${bold}.*\.(mp4$)${normal}
+--filter         a regular expression to filter files, eg. ${bold}.*\.((mp4$)|(mp3$))${normal}
 --args           the arguments to be passed to cmd
 --no-confirm     generated commands will be executed without prompt for confirmation
 --parallel-count the maximal number of commands to be executed parallel
@@ -118,10 +117,10 @@ ITERATOR_TARGET_DIR                   Path of the target directory for the curre
     fi
 done
 # validate specified arguments, use base directory as target directory if not specified
-if [[ $targetdir == "" ]]; then
+if [[ ! $targetdir ]]; then
     targetdir=$basedir
 fi
-if [[ $cmd == "" ]]; then
+if [[ ! $cmd ]]; then
     echo "${bold}${red}Error:${normal} ${bold}No command specified.${normal}"
     exit 1
 fi
@@ -134,11 +133,11 @@ if [[ ${#queue[@]} -ge 1 ]]; then
         queueexec
     else
         while true; do
-            read -p "${bold}Do you want to execute the commands [y/n]?${normal} " yn
+            read -p "${bold}Do you want to execute ${#queue[@]} commands [y/n]?${normal} " yn
             case $yn in
-                [Yy]* ) queueexec; break;;
-                [Nn]* ) exit;;
-                * ) echo "${bold}Please answer yes or no.${normal}";;
+                [Yy]*) queueexec; break;;
+                [Nn]*) exit;;
+                *) echo "${bold}Please answer yes or no.${normal}";;
             esac
         done
     fi

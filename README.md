@@ -40,7 +40,7 @@ music_lib_aac
 
 Just run:
 ```
-diriterator --base-dir "./music_lib_aac" --target-dir "./music_lib_aac" --filter ".*\.(mp3$)" --cmd "mkdir -p \"\$ITERATOR_TARGET_DIR\" && ffmpeg -i \"\$ITERATOR_FULL_PATH\" -c:a libfdk_aac -vbr 4 \"\$ITERATOR_TARGET_DIR/\$ITERATOR_FILE_NAME_WITHOUT_EXTENSION.m4a\"
+diriterator --base-dir "./music_lib_aac" --target-dir "./music_lib_aac" --filter ".*\.(mp3$)" --cmd "mkdir -p \"\$ITERATOR_TARGET_DIR\" && ffmpeg -i \"\$ITERATOR_FULL_PATH\" -c:a libfdk_aac -vbr 4 \"\$ITERATOR_TARGET_DIR/\$ITERATOR_FILE_NAME_WITHOUT_EXTENSION.m4a"
 ```
 
 The repository PKGBUILDs (also on my GitHub page) contains files for building an Arch Linux package.
