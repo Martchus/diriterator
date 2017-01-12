@@ -1,27 +1,33 @@
 #!/bin/bash
-shopt -s nullglob # from doc: If set, Bash allows filename patterns which match no files to expand to a null string, rather than themselves. 
+# set shell options
+set -e # abort on first error
+shopt -s nullglob # allow filename patterns which match no files to expand to a null string, rather than themselves
 shopt -s dotglob
 # define queue
 queue=()
 function queueecho {
     for item in "${queue[@]}"; do
-        echo $item
+        echo "$item"
     done
 }
 function queueexec {
     queueecho | parallel "-j$parallelcount" --eta "eval {}"
 }
 function iteratedirs {
-    for item in "$1"/*; do
+    local dir="$1"
+    local depth="$2"
+    local current_rel_dir="$3"
+
+    for item in "$dir"/*; do
         if [[ -d $item ]]; then
             if [[ $dept == none ]] || [[ $currentlevel -lt $dept ]]; then
-                iteratedirs "${item}" $(($2 + 1)) "${3}${item##*/}/"
+                iteratedirs "${item}" $(($depth + 1)) "${current_rel_dir}${item##*/}/"
             fi
         elif [[ -f $item ]]; then
-            if [[ $filter == "" ]] || [[ "$item" =~ $filter ]]; then
+            if [[ ! $filter ]] || [[ $item =~ $filter ]]; then
                 name=${item##*/}
                 namewithoutextension=${name%.*}
-                queue+=("ITERATOR_FULL_PATH=\"$item\" ITERATOR_FILE_NAME=\"$name\" ITERATOR_FILE_NAME_WITHOUT_EXTENSION=\"$namewithoutextension\" ITERATOR_CURRENT_DIR=\"$1\" ITERATOR_CURRENT_REL_DIR=\"$3\" ITERATOR_BASE_DIR=\"$basedir\" ITERATOR_TARGET_DIR=\"$targetdir/$3\" \"$cmd\" $append")
+                queue+=("ITERATOR_FULL_PATH=\"$item\" ITERATOR_FILE_NAME=\"$name\" ITERATOR_FILE_NAME_WITHOUT_EXTENSION=\"$namewithoutextension\" ITERATOR_CURRENT_DIR=\"$dir\" ITERATOR_CURRENT_REL_DIR=\"$current_rel_dir\" ITERATOR_BASE_DIR=\"$basedir\" ITERATOR_TARGET_DIR=\"$targetdir/$current_rel_dir\" \"$cmd\" $append")
             else
                 echo "${bold}${blue}Info:${normal} ${bold}Skipping »$item«.${normal}"
             fi
@@ -38,17 +44,7 @@ blue=$(tput setaf 4)
 bold=$(tput bold)
 normal=$(tput sgr0)
 # parse arguments
-read=
-# read arguments
-argcount=0
-append=
-basedir=./
-dept=none
-cmd=
-filter=
-targetdir=
-parallelcount=+0
-noconfirm=false
+read= argcount=0 append= basedir=. targetdir= dept=none cmd= filter= parallelcount=+0 noconfirm=
 for arg in "$@"
 do
     if [[ "--base-dir" == $arg ]]; then
@@ -117,9 +113,7 @@ ITERATOR_TARGET_DIR                   Path of the target directory for the curre
     fi
 done
 # validate specified arguments, use base directory as target directory if not specified
-if [[ ! $targetdir ]]; then
-    targetdir=$basedir
-fi
+[[ $targetdir ]] || targetdir=$basedir
 if [[ ! $cmd ]]; then
     echo "${bold}${red}Error:${normal} ${bold}No command specified.${normal}"
     exit 1
@@ -129,7 +123,7 @@ iteratedirs "$basedir" 0
 if [[ ${#queue[@]} -ge 1 ]]; then
     echo "${bold}Generated queue${normal}"
     queueecho
-    if [[ $noconfirm == true ]]; then
+    if [[ $noconfirm ]]; then
         queueexec
     else
         while true; do
