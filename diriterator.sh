@@ -47,41 +47,41 @@ normal=$(tput sgr0)
 read= argcount=0 append= basedir=. targetdir= depth=none cmd= filter= parallelcount=+0 noconfirm=
 for arg in "$@"
 do
-    if [[ "--base-dir" == $arg ]]; then
+    if [[ $arg == --base-dir ]]; then
         read=basedir
-    elif [[ "--depth" == $arg ]]; then
+    elif [[ $arg == --depth ]]; then
         read=depth
-    elif [[ "--cmd" == $arg ]]; then
+    elif [[ $arg == --cmd ]]; then
         read=cmd
-    elif [[ "--filter" == $arg ]]; then
+    elif [[ $arg == --filter ]]; then
         read=filter
-    elif [[ "--args" == $arg ]]; then
+    elif [[ $arg == --args ]]; then
         read=arguments
-    elif [[ "--parallel-count" == $arg ]]; then
+    elif [[ $arg == --parallel-count ]]; then
         read=parallelcount
-    elif [[ "--target-dir" == $arg ]]; then
+    elif [[ $arg == --target-dir ]]; then
         read=target
-    elif [[ "--no-confirm" == $arg ]]; then
+    elif [[ $arg == --no-confirm ]]; then
         noconfirm=true
-    elif [[ "--help" == $arg ]] || [[ "-h" == $arg ]]; then
+    elif [[ $arg == --help ]] || [[ $arg == -h ]]; then
         echo "${bold}Runs a script for each file in a directory hierarchy using GNU parallel.${normal}
---base-dir       the base directory (./ by default)
---target-dir     the target directory (base directory by default)
---depth          the maximal recursion depth (unlimited by default)
---cmd            the command to be executed
---filter         a regular expression to filter files, eg. ${bold}.*\.((mp4$)|(mp3$))${normal}
---args           the arguments to be passed to cmd
---no-confirm     generated commands will be executed without prompt for confirmation
---parallel-count the maximal number of commands to be executed parallel
+--base-dir                            base directory (current directory by default)
+--target-dir                          target directory (base directory by default)
+--depth                               maximal recursion depth (unlimited by default)
+--cmd                                 command to be executed
+--filter                              regular expression to filter files, eg. ${bold}.*\.((mp4$)|(mp3$))${normal}
+--args                                arguments to be passed to cmd
+--no-confirm                          generated commands will be executed without prompt for confirmation
+--parallel-count                      maximal number of commands to be executed parallel
 
 ${bold}The following environment variables will be set when running the script:${normal}
-ITERATOR_FULL_PATH                    Path of the current file.
-ITERATOR_FILE_NAME                    Full name of the current file.
-ITERATOR_FILE_NAME_WITHOUT_EXTENSION  Name of the current file without extension.
-ITERATOR_CURRENT_DIR                  Path of the current directory.
-ITERATOR_BASE_DIR                     Path of the base directory (specified using --base-dir).
-ITERATOR_CURRENT_REL_DIR              Path of the current directory (relative to the base directory).
-ITERATOR_TARGET_DIR                   Path of the target directory for the current file (specified --target-dir + ITERATOR_CURRENT_REL_DIR).
+ITERATOR_FULL_PATH                    current file path
+ITERATOR_FILE_NAME                    current file name with extension
+ITERATOR_FILE_NAME_WITHOUT_EXTENSION  current file name without extension
+ITERATOR_CURRENT_DIR                  current directory
+ITERATOR_BASE_DIR                     base directory (specified using --base-dir)
+ITERATOR_CURRENT_REL_DIR              current directory (relative to the base directory)
+ITERATOR_TARGET_DIR                   target directory for the current file
 "
         exit 0
     else
