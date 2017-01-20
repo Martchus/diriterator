@@ -20,7 +20,7 @@ function iteratedirs {
 
     for item in "$dir"/*; do
         if [[ -d $item ]]; then
-            if [[ $dept == none ]] || [[ $currentlevel -lt $dept ]]; then
+            if [[ $depth == none ]] || [[ $currentlevel -lt $depth ]]; then
                 iteratedirs "${item}" $(($depth + 1)) "${current_rel_dir}${item##*/}/"
             fi
         elif [[ -f $item ]]; then
@@ -44,13 +44,13 @@ blue=$(tput setaf 4)
 bold=$(tput bold)
 normal=$(tput sgr0)
 # parse arguments
-read= argcount=0 append= basedir=. targetdir= dept=none cmd= filter= parallelcount=+0 noconfirm=
+read= argcount=0 append= basedir=. targetdir= depth=none cmd= filter= parallelcount=+0 noconfirm=
 for arg in "$@"
 do
     if [[ "--base-dir" == $arg ]]; then
         read=basedir
-    elif [[ "--dept" == $arg ]]; then
-        read=dept
+    elif [[ "--depth" == $arg ]]; then
+        read=depth
     elif [[ "--cmd" == $arg ]]; then
         read=cmd
     elif [[ "--filter" == $arg ]]; then
@@ -67,7 +67,7 @@ do
         echo "${bold}Runs a script for each file in a directory hierarchy using GNU parallel.${normal}
 --base-dir       the base directory (./ by default)
 --target-dir     the target directory (base directory by default)
---dept           the maximal recursion dept (unlimited by default)
+--depth          the maximal recursion depth (unlimited by default)
 --cmd            the command to be executed
 --filter         a regular expression to filter files, eg. ${bold}.*\.((mp4$)|(mp3$))${normal}
 --args           the arguments to be passed to cmd
@@ -89,12 +89,12 @@ ITERATOR_TARGET_DIR                   Path of the target directory for the curre
             append="$append \"$arg\""
         elif [[ $read == basedir ]]; then
             basedir=$arg
-        elif [[ $read == dept ]]; then
-            if ! [[ $arg =~ ^-?[0-9]+$ ]]; then
-               echo "${bold}${red}Error:${normal} ${bold}specified dept »$arg« is not a number.${normal}"
+        elif [[ $read == depth ]]; then
+            if ! [[ $arg =~ ^[0-9]+$ ]]; then
+               echo "${bold}${red}Error:${normal} ${bold}specified depth »$arg« is not an unsigned number.${normal}"
                exit 1
             fi
-            dept=$arg
+            depth=$arg
         elif [[ $read == cmd ]]; then
             cmd=$arg
         elif [[ $read == filter ]]; then
