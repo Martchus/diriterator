@@ -15,13 +15,13 @@ function queueexec {
 }
 function iteratedirs {
     local dir="$1"
-    local depth="$2"
+    local currentlevel="$2"
     local current_rel_dir="$3"
 
     for item in "$dir"/*; do
         if [[ -d $item ]]; then
             if [[ $depth == none ]] || [[ $currentlevel -lt $depth ]]; then
-                iteratedirs "${item}" $(($depth + 1)) "${current_rel_dir}${item##*/}/"
+                iteratedirs "${item}" $(($currentlevel + 1)) "${current_rel_dir}${item##*/}/"
             fi
         elif [[ -f $item ]]; then
             if [[ ! $filter ]] || [[ $item =~ $filter ]]; then
