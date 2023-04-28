@@ -28,7 +28,8 @@ function iteratedirs {
                 name=${item##*/}
                 namewithoutextension=${name%.*}
                 iteratortargetdir=${targetdir}/${current_rel_dir}
-                queue+=("ITERATOR_FULL_PATH=${item@Q} ITERATOR_FILE_NAME=${name@Q} ITERATOR_FILE_NAME_WITHOUT_EXTENSION=${namewithoutextension@Q} ITERATOR_CURRENT_DIR=${dir@Q} ITERATOR_CURRENT_REL_DIR=${current_rel_dir@Q} ITERATOR_BASE_DIR=${basedir@QQ} ITERATOR_TARGET_DIR=${iteratortargetdir@Q} ${cmd@Q} ${append@Q}")
+                #queue+=("ITERATOR_FULL_PATH=${item@Q} ITERATOR_FILE_NAME=${name@Q} ITERATOR_FILE_NAME_WITHOUT_EXTENSION=${namewithoutextension@Q} ITERATOR_CURRENT_DIR=${dir@Q} ITERATOR_CURRENT_REL_DIR=${current_rel_dir@Q} ITERATOR_BASE_DIR=${basedir@QQ} ITERATOR_TARGET_DIR=${iteratortargetdir@Q} ${cmd@Q} ${append@Q}")
+                queue+=("ITERATOR_FULL_PATH=${item@Q} ITERATOR_FILE_NAME=${name@Q} ITERATOR_FILE_NAME_WITHOUT_EXTENSION=${namewithoutextension@Q} ITERATOR_CURRENT_DIR=${dir@Q} ITERATOR_CURRENT_REL_DIR=${current_rel_dir@Q} ITERATOR_BASE_DIR=${basedir@Q} ITERATOR_TARGET_DIR=${iteratortargetdir@Q} ${cmd@Q} ${append@Q}")
             else
                 echo "${bold}${blue}Info:${normal} ${bold}Skipping »$item«.${normal}"
             fi
